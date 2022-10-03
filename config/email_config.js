@@ -1,14 +1,14 @@
 const nodemailer = require('nodemailer');
 
 const smtpTransport = nodemailer.createTransport({
-    service: "gmail",
-	host: 'smtp.gmail.com',
-	port: 587,
-	secure: false,
+    service: "Naver",
     auth: {
         user: process.env.EMAIL_ID,
         pass: process.env.EMAIL_PW
     },
+    tls: {
+        rejectUnauthorized: false
+    }
   });
 
 module.exports = smtpTransport;
