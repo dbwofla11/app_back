@@ -1,6 +1,8 @@
 // 회원가입, 로그인
 const Users = require('../models/users').user;
 const smtpTransport = require('../config/email_config');
+const { createHashedPassword } = require('../utils/hash');
+const { jwt_sign } = require('./jwt_service');
 require("dotenv").config();
 
 module.exports = {
@@ -44,16 +46,27 @@ module.exports = {
 	login : (req, res) => {
 		let user_email = req.body.user_email;
 		let user_pw = req.body.user_pw;
-		User.get_user(user_email, (err, rows) => {
-			if (err) throw err;
-			
-			// 로그인 성공시 토큰 발급
-			if (!rows[0]) return res.json({result: false, message: "아이디 또는 비밀번호가 잘못되었습니다."});
+		Users.get_user(user_email, async (rows) => {
+			if (!rows[0][0]) { 
+				return res.json({
+					result: false, 
+					message: "이메일 또는 비밀번호가 잘못되었습니다."
+				});
+			}
 			else {
-				if (rows[0].user_pw === user_pw) {
-					return res.json({result: true, message: "로그인에 성공하였습니다."});
+				let user = rows[0][0];
+				const { hashedPassword, salt } = await createHashedPassword(user_pw, user.salt);
+				if (user.user_pw === hashedPassword) {
+					const tokens_json = await jwt_sign(user); // token 발급
+					return res.json({
+						result : tokens_json,
+						message : "로그인에 성공하였습니다."
+					});
 				} else {
-					return res.json({result: false, message: "아이디 또는 비밀번호가 잘못되었습니다."});
+					return res.json({
+						result: false, 
+						message: "이메일 또는 비밀번호가 잘못되었습니다."
+					});
 				}
 			}
 		})

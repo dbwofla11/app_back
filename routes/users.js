@@ -11,9 +11,7 @@ const User_Service = require("../service/user_service");
 //   res.send('respond with a resource');
 // });
 
-router.post('/login', (req, res) => {
-	User_Service.login(req, res);
-})
+router.post('/login', User_Service.login)
 
 // 먼저 email 입력 페이지로부터 email만 입력받아 db에 중복된 email이 있는지 검사.
 router.post('/register', (req, res) => {
@@ -37,7 +35,7 @@ router.post('/register-process', async (req, res) => {
 	User_Service.insert_user_db(user_email, hashedPassword, user_nickname, salt, res); // db에 salt column 추가
 })
 
-router.get('/delete', (req, res) => {
+router.delete('/delete', (req, res) => {
 	// delete
 })
 
@@ -45,7 +43,7 @@ router.get('/logout', (req, res) => {
 	// logout
 })
 
-router.post('/update-stamp', (req, res) => {
+router.get('/update-stamp', (req, res) => {
 	// update stamp
 })
 
