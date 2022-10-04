@@ -29,11 +29,12 @@ router.post('/register-validate-email', (req, res) => {
 })
 
 // email, pw, nickname을 전달받아 db에 insert.
-router.post('/register-process', (req, res) => {
+router.post('/register-process', async (req, res) => {
 	let user_email = req.body.user_email;
 	let user_nickname = req.body.user_nickname;
-	const { user_pw, salt } = hash_pw.createHashedPassword(req.body.user.password);
-	User_Service.insert_user_db(user_email, user_pw, user_nickname, salt, res); // db에 salt column 추가
+	let plainPassword = req.body.user_pw;
+	const { hashedPassword, salt } = await hash_pw.createHashedPassword(plainPassword);
+	User_Service.insert_user_db(user_email, hashedPassword, user_nickname, salt, res); // db에 salt column 추가
 })
 
 router.get('/delete', (req, res) => {

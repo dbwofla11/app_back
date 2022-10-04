@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 var trash = require('./routes/trash');
 var users = require('./routes/users');
+var dbconfig = require('./test/dbconnect');
 
 var app = express();
 
@@ -25,7 +26,7 @@ app.use(cookieParser());
 
 app.use('/', trash); // 쓰레기통 위치 
 app.use('/users', users); // 유저 
-
+app.use('/test', dbconfig); // 테스트
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

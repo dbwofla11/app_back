@@ -1,14 +1,14 @@
 // 회원가입, 로그인
 const Users = require('../models/users').user;
 const smtpTransport = require('../config/email_config');
-
+require("dotenv").config();
 
 module.exports = {
 	check_duplicated : (user_email, res) => {
 		// 중복회원 검사
-		Users.get_user(user_email, (err, rows) => {
-			if (err) throw err;
-			if (rows[0]) return res.json({result: false, message: "이미 가입한 이메일입니다."});
+		Users.get_user(user_email, (rows) => {
+			if (rows[0][0]) return res.json({result: false, message: "이미 가입한 이메일입니다."});
+			else return res.json({result : true, message : "회원가입이 가능한 이메일입니다."});
 		})
 	},
 	
@@ -19,7 +19,7 @@ module.exports = {
 		let authNum = Math.floor(Math.random() * (999999 - 111111 + 1)) + 111111;
 
 		let mailOptions = {
-			from: `쓰레기통 위치 앱`,
+			from: process.env.EMAIL_ID,
 			to: user_email,
 			subject: '쓰레기통 위치 앱의 회원가입을 위한 인증번호를 입력해주세요.',
 			text: `인증번호 : ${authNum}`,
@@ -30,15 +30,14 @@ module.exports = {
 				throw err;
 			}
 			console.log("Finish sending email : " + info.response);
-			res.send(authNum);
-			transporter.close()
+			transporter.close();
 		});
+		res.json({authNum : authNum});
 	},
 	
-	insert_user_db : (user_email, user_pw, user_nickname, res) => {
-		Users.insert_user(user_email, user_pw, user_nickname, (err, rows) => {
-			if (err) throw err;
-			else return res.json({result: true, message: "회원가입에 성공하였습니다."})
+	insert_user_db : (user_email, user_pw, user_nickname, salt, res) => {
+		Users.insert_user(user_email, user_pw, user_nickname, salt, (rows) => {
+			return res.json({result: true, message: "회원가입에 성공하였습니다."})
 		})
 	},
 	

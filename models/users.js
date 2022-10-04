@@ -1,56 +1,46 @@
-const db = require('./db/db');
+const db = require('../config/db/db');
 
 // DB에 쿼리 보내기 
 module.exports = {
     user : {
-        insert_user : (user_email, user_pw, user_nickname, cb) => {
-          	let queryString = `insert into user(user_email, user_pw, user_nickname, point) 
-			value ("${user_email}" , "${user_pw}" , "${user_nickname}", 0)`; 
+        insert_user : (user_email, user_pw, user_nickname, salt, cb) => {
+          	let queryString = `insert into user(user_email, user_pw, user_nickname, salt, point) 
+			value ("${user_email}" , "${user_pw}" , "${user_nickname}", "${salt}", 0)`; 
                 
-			db.connect();
-            db.query(queryString, (err, rows) => {
-                db.end();
-				cb(err, rows);
-			})
+            db.promise().query(queryString)
+            .then((rows) => cb(rows))
+            .catch((err) => { throw err })
         },
         
         get_user : (user_email, cb) => {
     		let queryString = `select * from user where user_email = "${user_email}"`;
     		
-			db.connect();
-    		db.query(queryString, (err, rows) => {
-                db.end();
-                cb(err, rows);
-            })
+    		db.promise().query(queryString)
+            .then((rows) => cb(rows))
+            .catch((err) => { throw err })
 		},
         
         update_user_pw : (user_email , user_pw , cb) => {
             let queryString = `update user set user_pw = "${user_pw}" where user_email = "${user_email}"`
             
-            db.connect();
-            db.query(queryString, (err, rows) => {
-                db.end();
-                cb(err, rows);
-            })
+            db.promise().query(queryString)
+            .then((rows) => cb(rows))
+            .catch((err) => { throw err })
 		},
         update_user_point : (user_email , point , cb) => {
             let queryString = `update user set point = ${point} where user_id = "${user_email}"`
             
-            db.connect();
-            db.query(queryString , (err ,rows) => {
-                db.end();
-                cb(err, rows);
-            })
+            db.promise().query(queryString)
+            .then((rows) => cb(rows))
+            .catch((err) => { throw err })
         },
         
         delete_user : (user_email , cb) => { // 이것역시 서비스에서 끼워넣기 
             let queryString = `delete from user where user_id = "${user_email}" ` 
             
-            db.connect();
-            db.query(queryString, (err, rows) => {
-                db.end();
-                cb(err, rows);
-            })
+            db.promise().query(queryString)
+            .then((rows) => cb(rows))
+            .catch((err) => { throw err })
         }
         
     }

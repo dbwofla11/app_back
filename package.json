@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node app"
+    "start": "nodemon app"
   },
   "dependencies": {
     "body-parser": "~1.18.2",
@@ -12,9 +12,11 @@
     "dotenv": "^16.0.2",
     "ejs": "~2.5.7",
     "express": "~4.15.5",
+    "jsonwebtoken": "^8.5.1",
     "morgan": "~1.9.0",
-    "mysql": "^2.18.1",
+    "mysql2": "^2.3.3",
     "nodemailer": "^6.7.8",
+    "nodemon": "^2.0.20",
     "serve-favicon": "~2.4.5"
   }
 }
