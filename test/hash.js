@@ -15,6 +15,6 @@ createHashedPassword = (plainPassword, salt) =>
         })
     })
 
-createHashedPassword(process.env.DB_PASSWORD, "33")
+createHashedPassword(process.env.DB_PASSWORD)
 .then((s) => console.log(s))
 .catch((err) => {throw err});

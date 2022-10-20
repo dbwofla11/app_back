@@ -1,27 +1,40 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const randToken = require('rand-token');
-const { secretKey, option } = require('../config/jwtSecret');
-const TOKEN_EXPIRED = -3;
+const { accessSecretKey, refreshSecretKey, accessOption, refreshOption, get_payload } = require('../config/jwt_secret');
+const TOKEN_EXPIRED = -1;
 const TOKEN_INVALID = -2;
 
 module.exports = {
-	jwt_sign : async (user) => {
-		const payload = {
-			"http://localhost:3000/auth" : true,
-			email : user.email,
-			nickname : user.nickname,
+	generate_tokens :  (user_email) => {
+		const payload = get_payload(user_email);
+		return {
+			accessToken : jwt.sign(payload, accessSecretKey, accessOption),
+			refreshToken : jwt.sign(payload, refreshSecretKey, refreshOption)
 		};
-		const result = {
-			token : jwt.sign(payload, secretKey, option),
-			refreshToken : randToken.uid(256)
-		};
-		return result;
 	},
-	jwt_verify : async (token) => {
+	update_jwt : (user_email, kind) => {
+		let payload = get_payload(user_email);
+		if (kind === "refresh") {
+			refreshToken = jwt.sign(payload, refreshSecretKey, refreshOption); // refreshToken 생성
+			console.log('updated refreshToken successfully.');
+			return refreshToken;
+		} else if (kind === "access") {
+			accessToken = jwt.sign(payload, accessSecretKey, accessOption); // accesshToken 생성
+			console.log('updated accessToken successfully');
+			return accessToken;
+		} else {
+			throw new Error("error in update tokens");
+		}
+		
+	},
+	verify_jwt :  (token, kind) => {
 		let decoded;
 		try {
-			decoded = jwt.verify(token, secretKey)
+			if (kind === "access"){
+				decoded = jwt.verify(token, accessSecretKey);
+			} else if (kind === "refresh") {
+				decoded = jwt.verify(token, refreshSecretKey);
+			} else { throw new Error("Unknown Type of Token") }
 		} catch (err) {
 			if (err.message === 'jwt expired') {
                 console.log('expired token');
@@ -31,7 +44,7 @@ module.exports = {
                 console.log(TOKEN_INVALID);
                 return TOKEN_INVALID;
             } else {
-                console.log("invalid token");
+				console.log(err.message);
                 return TOKEN_INVALID;
             }
 		}
