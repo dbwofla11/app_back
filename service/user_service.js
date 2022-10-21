@@ -67,6 +67,24 @@ module.exports = {
 		})
 	},
 
+	get_info : (req, res) => {
+		const user_email = verify_jwt(req.cookies.accessToken, 'access').email;
+		Users.get_user_by_email(user_email, async (rows) => {
+			if (!rows[0][0]) {
+				return res.status(404).json({
+					message : "Cannot find the user."
+				});
+			} else {
+				let user = rows[0][0]
+				return res.json({
+					email : user.user_email,
+					nickname : user.user_nickname,
+					point : user.point
+				});
+			}
+		});
+	},
+
 	change_pw : (req, res) => {
 		const user_email = verify_jwt(req.cookies.accessToken, 'access').email;
 		Users.get_user_by_email(user_email, async (rows) => {

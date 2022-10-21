@@ -16,6 +16,8 @@ router.post('/register-validate-email', User_Service.validate_email);
 // email, pw, nickname을 전달받아 db에 insert.
 router.post('/register-process', User_Service.register_user);
 
+router.get('/info', check_tokens, User_Service.get_info);
+
 router.patch('/update/pw', check_tokens, User_Service.change_pw);
 
 router.patch('/update/point', check_tokens, User_Service.update_point);
