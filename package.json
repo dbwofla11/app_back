@@ -17,6 +17,7 @@
     "mysql2": "^2.3.3",
     "nodemailer": "^6.7.8",
     "nodemon": "^2.0.20",
+    "rand-token": "^1.0.1",
     "serve-favicon": "~2.4.5"
   }
 }
