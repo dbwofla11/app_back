@@ -1,8 +1,5 @@
-require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const { accessSecretKey, refreshSecretKey, accessOption, refreshOption, get_payload } = require('../config/jwt_secret');
-const TOKEN_EXPIRED = -1;
-const TOKEN_INVALID = -2;
 
 module.exports = {
 	generate_tokens :  (user_email) => {
@@ -29,6 +26,8 @@ module.exports = {
 	},
 	verify_jwt :  (token, kind) => {
 		let decoded;
+		const TOKEN_EXPIRED = -1;
+		const TOKEN_INVALID = -2;
 		try {
 			if (kind === "access"){
 				decoded = jwt.verify(token, accessSecretKey);
@@ -36,15 +35,10 @@ module.exports = {
 				decoded = jwt.verify(token, refreshSecretKey);
 			} else { throw new Error("Unknown Type of Token") }
 		} catch (err) {
+			console.log(err.message);
 			if (err.message === 'jwt expired') {
-                console.log('expired token');
                 return TOKEN_EXPIRED;
-            } else if (err.message === 'invalid token') {
-                console.log('invalid token');
-                console.log(TOKEN_INVALID);
-                return TOKEN_INVALID;
             } else {
-				console.log(err.message);
                 return TOKEN_INVALID;
             }
 		}
