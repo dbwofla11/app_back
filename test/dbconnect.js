@@ -1,11 +1,12 @@
 const db = require('../config/db/db');
 const express = require('express');
+const Users = require('../models/users').user;
 const router = express.Router();
 
-router.get('/hi', (req, res) => {
-    db.promise().query(`select * from user`)
-    .then((rows) => { res.send(rows[0]) })
-    .catch((err) => { throw err })
+router.post('/hi', async (req, res) => {
+    const user = await Users.get_user_by_email(req.body.user_email);
+    console.log(user);
+    res.send(user);
 })
 
 module.exports = router;
