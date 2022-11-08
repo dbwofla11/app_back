@@ -1,30 +1,15 @@
 var express = require('express');
 var router = express.Router();
+const trash_Service = require("../service/trash_can");
 
-/* GET home page. */
-// router.get('/', function(req, res, next) {
-//   res.render('index', { title: 'Express' });
-// });
+router.post('/trash/add', trash_Service.add_trashcan);
 
-// /trash/register req: {status : INT , } // 상태 디비에다 보내기 
-router.post('/register', (req, res) => {	
-	let status = req.status;
-})
+router.patch('/trash/update/delete', );
 
-// /trash/add req: {trash_name : string , kind : int}
-router.post('/add', (req, res) => {
-    let trash_name = req.trash_name;
-    let kind = req.kind;
-})
+router.patch('/trash/update/status', trash_Service.review_trashcan );
 
-router.get('/update-status', (req ,res) => { // 요소를 클릭해서 들어가면 get 
-    
-})
+router.get('/trash/select/all', );
 
-router.post('/delete-request', (req ,res) => {
-    
-})
+router.get('/trash/select/id', );
 
 module.exports = router;
-
-
