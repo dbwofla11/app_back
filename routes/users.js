@@ -12,6 +12,9 @@ router.post('/register', User_Service.check_duplicated); // req.body : user_emai
 // user의 입력과 client가 받은 값이 똑같으면(이건 client에서 검증) 그 다음 페이지(비밀번호, 닉네임 입력 폼)로 넘어감. 
 router.post('/register-validate-email', User_Service.validate_email); // req.body : req.body user_email
 
+// user_nickname 중복검사
+router.post('/register-validate-nickname', User_Service.validate_nickname);
+
 // email, pw, nickname을 전달받아 db에 insert.
 router.post('/register-process', User_Service.register_user); // req.body : user_email, user_pw, user_nickname
 

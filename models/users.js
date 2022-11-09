@@ -16,6 +16,12 @@ module.exports = {
             return result[0][0];
 		},
         
+        get_user_by_nickname : async (user_nickname) => {
+            let queryString = `select * from users where user_nickname = "${user_nickname}"`;
+            result = await execute(queryString);
+            return result[0][0];
+        },
+
         get_user_by_refreshToken : async (refreshToken) => {
             let queryString = `select * from users where refreshToken="${refreshToken}"`;
             result = await execute(queryString);
