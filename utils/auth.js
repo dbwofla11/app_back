@@ -3,28 +3,23 @@ const Users = require('../models/users').user;
 
 module.exports = {
     check_tokens : async (req, res, next) => {
-        var refresh_in_db = true; // 전달받은 refreshToken이 db에 있는 것과 동일한지 여부
-
         if (req.cookies === undefined)
-            return res.status(401).send('API 사용권한이 없습니다.');
+            return res.status(401).json({ message : '사용권한이 없습니다.' });
 
         // db에 있는 refreshToken과 cookie에 있는 refreshToken을 비교
-        await Users.get_user_by_refreshToken(req.cookies.refreshToken, (rows) => {
-            if (!rows[0][0]) {
-                refresh_in_db = false;
-                return refresh_in_db;
-            }
-        })
+        const user = await Users.get_user_by_refreshToken(req.cookies.refreshToken);
+        if (!user)
+            return res.status(401).json({ message : "사용권한이 없습니다."});
 
         let accessToken = verify_jwt(req.cookies.accessToken, 'access');
         let refreshToken = verify_jwt(req.cookies.refreshToken, 'refresh');
 
         // 0. accessToken 또는 refreshToken가 invalid
-        if (refresh_in_db === false || accessToken === -2 || refreshToken === -2) {
+        if (accessToken === -2 || refreshToken === -2) {
             return res.status(401).json({
                 result : false,
                 message : "invalid token is detected."
-            })
+            });
         }
 
         if (accessToken === -1) {
@@ -43,9 +38,7 @@ module.exports = {
             if (refreshToken === -1) { // 3. accessToken 유효, refreshToken 만료
                 let user_email = accessToken.email;
 		    	refreshToken = update_jwt(user_email, "refresh"); // refreshToken 생성
-                Users.update_refreshToken(user_email, refreshToken, (rows) => { // uqdate refreshToken in db.
-                    console.log('update refreshToken success');
-                });
+                await Users.update_refreshToken(user_email, refreshToken);
                 req.cookies.refreshToken = refreshToken;
                 res.cookie('refreshToken', refreshToken);
             } 
