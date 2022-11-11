@@ -128,18 +128,5 @@ module.exports = {
 		const user_email = verify_jwt(req.cookies.accessToken, 'access').email;
 		await Users.delete_user(user_email);
 		return res.json({ message : '회원 탈퇴 성공' });
-	},
-
-	update_point : async (req, res) => {
-		const user_email = verify_jwt(req.cookies.accessToken, 'access').email;
-		const user = await Users.get_user_by_email(user_email);
-		const point = user.point + req.body.add_point;
-
-		await Users.update_user_point(user.id, point);
-
-		return res.json({
-			message : "포인트가 변경되었습니다.",
-			point : point
-		});
 	}
 }

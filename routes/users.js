@@ -26,9 +26,6 @@ router.post('/validate-pw', check_tokens, User_Service.compare_pw);
 // 새로운 비밀번호를 쳐서 서버한테 보내는 방식.(구현완료)
 router.patch('/update/pw', check_tokens, User_Service.change_pw); // req.body : user_pw(새로운 비밀번호)
 
-// 1. 포인트의 변화량만 앱에서 서버로 전송(구현 완료)
-router.patch('/update/point', check_tokens, User_Service.update_point); // req.body : addPoint(포인트 변화량)
-
 router.delete('/delete', check_tokens, User_Service.withdraw_member); // req.body : 없음.
 
 router.get('/logout', check_tokens, User_Service.logout); // req.body : 없음.
