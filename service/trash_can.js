@@ -1,55 +1,81 @@
 // 쓰레기통 관련 기능
-const Trash_can = require('../models/trash_can_location').trash_can;
-const Users = require('../models/users').user;
+const Trash_can = require('../models/trash_can_location');
+const Users = require('../models/users');
+const joins =require('../models/joindb');
 const { verify_jwt } = require('../utils/jwt_service') 
 const { execute } = require('../utils/dbQuery'); 
 
 module.exports ={
-    add_trashcan : (req , res) => {
-        // let add_cnt = (함수입력 갯수 \)
-        // 필요조건 : 12시 초기화 쿨타임 X , 등록한 사람에게 포인트 전달 , 등록자 이름 등록 O,
+
+
+    add_trashcan : async (req , res) => {
         let address = req.body.address;
         let latitude = req.body.latitude;
         let longitude = req.body.longitude; 
         let kind = req.body.kind; // 담배는 1 재활용은 2 일반 쓰레기통은 3
         let full_status = 0;  
         let trash_name = req.body.trash_name;
-        let author = verify_jwt(req.cookies.accessToken, 'access').email ;
-        let detail = req.body.detail;
+        let user_id = verify_jwt(req.cookies.accessToken, 'access').email;
+        let user = await Users.get_user_by_email(user_id); // author을 추가하기 위함 
+        let detail = req.body.detail;        
         
-        Trash_can.insert_new_location( address , latitude  , longitude , kind , full_status , trash_name , trash_name ,  author , detail );
-
-        return res.json({result : true, message : "위치 추가에 성공하였습니다."});
+        if ( user.add_point > 3 ){
+            return res.json({result : true, message : "3번 이상의 add를 이미 했습니다"});
+        } else{
+            await Trash_can.insert_new_location( address , latitude  , longitude , kind , full_status , trash_name , trash_name ,  user.id , detail ); // 
+            await Users.update_user_point(user_id , user.point + 50);
+            await Users.update_user_add_cnt(user_id , user.add_point + 1);
+            return res.json({result : true, message : "위치 추가에 성공하였습니다."});
+        }
     },
 
-    update_delete_point : (req , res) => { // 마커에서 정보를 불러올시 body가 아닌 그냥 마커에서 가져올 수 있다. 
-        let id = req.body.id;
-        let delete_point = req.body.delete_point;
-        Trash_can.update_trash_can_deletepoint(id , delete_point);
-    },
 
-    review_trashcan : (req , res) => {
+    review_trashcan : async (req , res) => {
         let full_status = req.body.full_status;
         let detail = req.body.detail;
-        let id = req.body.id;
-        Trash_can.update_trash_can_status(id , full_status , detail);
+        let trash_id = req.body.id;
+        let user_id = verify_jwt(req.cookies.accessToken, 'access').email ;
+        let user = await Users.get_user_by_email(user_id);
+
+        if ( user.review_point > 10 ){
+            return res.json({result : true, message : "10번 이상의 리뷰를 이미 했습니다"});
+        } else {
+            await Trash_can.update_trash_can_status(trash_id , full_status , detail);
+            await Users.update_user_point(user_id , user.point + 10);
+            await Users.update_user_review_cnt(user_id , user.review_point + 1);
+            return res.json({result : true, message : "리뷰가 업데이트 되었습니다"});
+        }
     },
 
+
     delete_trashcan : async (req , res) => {
-        let id = req.body.id;
-        let delete_point = await Trash_can.get_trash_can_delete_point(id);
-        if (delete_point <= 3){
-            delete_point += 1;
-            Trash_can.update_trash_can_deletepoint(delete_point , id)
+        let trash_id = req.body.id; // 쓰레기통 아이디 
+        let user_id = verify_jwt(req.cookies.accessToken, 'access').email ;
+        let trash_delete_point = await Trash_can.get_trash_can_delete_point(trash_id);
+        let user = await Users.get_user_by_email(user_id);
+        let author = await Trash_can.get_author_point(trash_id)
 
-            Trash_can.delete_trash_can(id);
-            return res.json({result : true, message : "위치 삭제에 성공했습니다."});
-        } else {
-            return res.json({result : true , message : "delete 포인트가 3이 넘습니다 !!"});
-        }        
+        if( user.del_point >= 3 ){
+            return res.json({result : true , message : "너무 삭제요청을 많이 하셔서 오늘은 좀 셔야 되겟네요~~~~~"})
+        }
+        else {
+            trash_delete_point += 1;
+            await Users.update_user_point(user_id , user.point + 10); // 신고를 요청한 사람 
+
+            if (trash_delete_point >= 3){
+                await Trash_can.delete_trash_can(trash_id);
+                await Users.update_user_point(author.id , author.point - 50);
+                await Users.update_user_delete_cnt(user_id , user.del_point + 1);
+                return res.json({result : true , message : "쓰레기통이 정상적으로 삭제되었습니다."});
+            }
+            else{
+                await Trash_can.update_trash_can_deletepoint(trash_id , trash_delete_point);
+                await Users.update_user_delete_cnt(user_id , user.del_point + 1);
+                return res.json({result : true , message : "삭제요청이 완료되었습니다. !! ( 업데이트 delete_point <= 3 ) "});
+            }
+
+        }
     }
-    
-
 }
 
 
