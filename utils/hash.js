@@ -9,9 +9,10 @@ let self = module.exports = {
     createHashedPassword : (plainPassword, salt) =>
     new Promise(async (resolve, reject) => {
         if (!salt) { salt = await self.createSalt(); }
+
         crypto.pbkdf2(plainPassword, salt, 9999, 64, "sha512", (err, key) =>{
             if (err) reject(err);
-            else resolve({ hashedPassword : key.toString('base64'), salt : salt});
-        })
+            else     resolve({ hashedPassword : key.toString('base64'), salt : salt});
+        });
     })
 }
