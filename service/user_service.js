@@ -2,7 +2,6 @@ const Users = require('../models/users');
 const mailer = require('../config/email_config');
 const { createHashedPassword } = require('../utils/hash');
 const { generate_tokens, verify_jwt } = require('../utils/jwt_service');
-require("dotenv").config();
 
 module.exports = {
 	check_duplicated : async (req, res) => {
@@ -20,7 +19,6 @@ module.exports = {
 		
 		// minNum <= authNum <= maxNum
 		const authNum = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum;
-
 		const mailOptions = mailer.mailOptions(user_email, authNum);
 
 		transporter.sendMail(mailOptions, function (err, info) {

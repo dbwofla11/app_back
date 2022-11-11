@@ -1,13 +1,15 @@
 const { verify_jwt, update_jwt } = require('./jwt_service');
-const Users = require('../models/users').user;
+const Users = require('../models/users');
 
 module.exports = {
     check_tokens : async (req, res, next) => {
+        const user = Users.get_user_by_refreshToken(req.cookies.refreshToken);
+
         if (req.cookies === undefined)
             return res.status(401).json({ message : '사용권한이 없습니다.' });
 
         // db에 있는 refreshToken과 cookie에 있는 refreshToken을 비교
-        const user = await Users.get_user_by_refreshToken(req.cookies.refreshToken);
+        await user;
         if (!user)
             return res.status(401).json({ message : "사용권한이 없습니다."});
 
@@ -31,14 +33,18 @@ module.exports = {
             } else { // 2. accessToken 만료, refreshToken 유효
                 let user_email = refreshToken.email;
                 let accessToken = update_jwt(user_email, 'access');
+
                 req.cookies.accessToken = accessToken;
                 res.cookie('accessToken', accessToken);
             }
         } else {
             if (refreshToken === -1) { // 3. accessToken 유효, refreshToken 만료
                 let user_email = accessToken.email;
+
 		    	refreshToken = update_jwt(user_email, "refresh"); // refreshToken 생성
+
                 await Users.update_refreshToken(user_email, refreshToken);
+                
                 req.cookies.refreshToken = refreshToken;
                 res.cookie('refreshToken', refreshToken);
             } 
