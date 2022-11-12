@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require('./db/db');
 
 module.exports = {
 	trash_can : { // 주소는 서비스에서 자르기. 
@@ -16,6 +16,7 @@ module.exports = {
 				queryString += where.join(`and`);
 			}
 			
+			db.connect();
 			db.query(queryString, (err, rows) => {
 				db.end();
 				cb(err, rows);
@@ -25,6 +26,7 @@ module.exports = {
 		get_by_id : (id, cb) => { // id를 이용한 쓰레기통 정보 조회
 			
 			let queryString = `select * from trash_can where id = ${id}`;
+			db.connect();
 			db.query(queryString, (err, rows) => {
 				db.end();
 				cb(err, rows);
@@ -43,6 +45,7 @@ module.exports = {
 			insert into trash_can 
 			value (null, "${gu}", "${road}", "${detail}", "${user_id}", "${kind}", "${status}", "${latitude}", "${longitude}", 0 , "${trash_name}" )`; // 0 은 삭제요청 횟수 
 			
+			db.connect();
 			db.query(queryString, (err, rows) => {
 				db.end();
 				cb(err, rows);
@@ -65,6 +68,7 @@ module.exports = {
 			queryString[-2] = "";
 			queryString += `where id = ${id}`;
 			
+			db.connect();
 			db.query(queryString, (err, rows) => {
 				db.end();
 				cb(err, rows);
@@ -75,6 +79,7 @@ module.exports = {
 			
 			let deleteString = `delete from trash_can where id = ${id}`; // 삭제 쿼리
 			
+			db.connect();
 			db.query(deleteString, (err, rows) => {
 				db.end();
 				cb(err, rows);
