@@ -57,6 +57,9 @@ module.exports = {
 	
 	login : async (req, res) => {
 		const user = await Users.get_user_by_email(req.body.user_email);
+
+		if (!user) return res.status(403).json({ result : false, message : "이메일 또는 비밀번호가 잘못되었습니다." });
+
 		const { hashedPassword } = await createHashedPassword(req.body.user_pw, user.salt);
 
 		if (user.user_pw === hashedPassword) {
@@ -86,7 +89,10 @@ module.exports = {
 		return res.json({
 			email : user.user_email,
 			nickname : user.user_nickname,
-			point : user.point
+			point : user.point,
+			add_point : user.add_point,
+			del_point : user.del_point,
+			review_point : user.review_point
 		});
 	},
 
