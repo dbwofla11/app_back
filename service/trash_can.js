@@ -16,7 +16,7 @@ module.exports ={
             id : trash.id,
             address : trash.address,
             kind : trash.kind ,
-            status : trash.status,
+            full_status : trash.full_status,
             latitude : trash.latitude , 
             longitude : trash.longitude,
             delete_point : trash.delete_point,
@@ -32,7 +32,7 @@ module.exports ={
 
         return res.json({
             address : trash.address,
-            status : trash.status,
+            full_status : trash.full_status,
             detail : trash.detail
         })
     },
