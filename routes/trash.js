@@ -11,6 +11,6 @@ router.patch('/trash/update/status', check_tokens,  trash_Service.review_trashca
 
 router.get('/trash/select/all', );
 
-router.get('/trash/select/id', );
+router.get('/trash/select/id', trash_Service.get_trash_id );
 
 module.exports = router;

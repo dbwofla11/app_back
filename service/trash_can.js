@@ -1,12 +1,41 @@
 // 쓰레기통 관련 기능
 const Trash_can = require('../models/trash_can_location');
 const Users = require('../models/users');
-const joins =require('../models/joindb');
 const { verify_jwt } = require('../utils/jwt_service') 
-const { execute } = require('../utils/dbQuery'); 
 
 module.exports ={
 
+    get_trash_main_dis : async (req ,res) => {
+        let x1 = req.body.x1;
+        let x2 = req.body.x2;
+        let y1 = req.body.y1;
+        let y2 = req.body.y2;
+        const trash = await Trash_can.get_trash_by_xy(x1 , x2 , y1 , y2);
+        
+        return res.json({
+            id : trash.id,
+            address : trash.address,
+            kind : trash.kind ,
+            status : trash.status,
+            latitude : trash.latitude , 
+            longitude : trash.longitude,
+            delete_point : trash.delete_point,
+            trash_name : trash.trash_name,
+            author : trash.author , // 작성자 id 값 이메일 아님 
+            detail : trash.detail 
+        })
+    },
+
+    get_trash_id : async (req , res) => {
+        const trash_id = req.body.id;
+        const trash = await Trash_can.get_by_id(trash_id);
+
+        return res.json({
+            address : trash.address,
+            status : trash.status,
+            detail : trash.detail
+        })
+    },
 
     add_trashcan : async (req , res) => {
         let address = req.body.address;
@@ -29,7 +58,6 @@ module.exports ={
         }
     },
 
-
     review_trashcan : async (req , res) => {
         let full_status = req.body.full_status;
         let detail = req.body.detail;
@@ -47,16 +75,16 @@ module.exports ={
         }
     },
 
-
     delete_trashcan : async (req , res) => {
         let trash_id = req.body.id; // 쓰레기통 아이디 
         let user_id = verify_jwt(req.cookies.accessToken, 'access').email ;
         let trash_delete_point = await Trash_can.get_trash_can_delete_point(trash_id);
-        let user = await Users.get_user_by_email(user_id);
-        let author = await Trash_can.get_author_point(trash_id)
+        // let user = await Users.get_user_by_email(user_id);
+        // let author = await Trash_can.get_author_point(trash_id)
+        const [user , author] = await Promise.all([Users.get_user_by_email(user_id) , Trash_can.get_author_point(trash_id)])
 
         if( user.del_point >= 3 ){
-            return res.json({result : true , message : "너무 삭제요청을 많이 하셔서 오늘은 좀 셔야 되겟네요~~~~~"})
+            return res.json({result : true , message : "너무 삭제요청을 많이 하셔서 오늘은 좀 쉬어야 되겠네요~~~~~"})
         }
         else {
             trash_delete_point += 1;
