@@ -1,68 +1,63 @@
-const db = require('./db/db');
+const { execute } = require('../utils/dbQuery');
 
 // DB에 쿼리 보내기 
 module.exports = {
-    user : {
-        insert_user : (user_email, user_pw, user_nickname, cb) => {
-          	let queryString = `insert into user(user_email, user_pw, user_nickname, point) 
-			value ("${user_email}" , "${user_pw}" , "${user_nickname}", 0)`; 
-                
-			db.connect();
-            db.query(queryString, (err, rows) => {
-                db.end();
-				cb(err, rows);
-			})
-        },
-        
-        get_user : (user_email, cb) => {
-    		let queryString = `select * from user where user_email = "${user_email}"`;
-    		
-			db.connect();
-    		db.query(queryString, (err, rows) => {
-                db.end();
-                cb(err, rows);
-            })
-		},
-        
-        update_user_pw : (user_email , user_pw , cb) => {
-            let queryString = `update user set user_pw = "${user_pw}" where user_email = "${user_email}"`
-            
-            db.connect();
-            db.query(queryString, (err, rows) => {
-                db.end();
-                cb(err, rows);
-            })
-		},
-        update_user_point : (user_email , point , cb) => {
-            let queryString = `update user set point = ${point} where user_id = "${user_email}"`
-            
-            db.connect();
-            db.query(queryString , (err ,rows) => {
-                db.end();
-                cb(err, rows);
-            })
-        },
-        
-        delete_user : (user_email , cb) => { // 이것역시 서비스에서 끼워넣기 
-            let queryString = `delete from user where user_id = "${user_email}" ` 
-            
-            db.connect();
-            db.query(queryString, (err, rows) => {
-                db.end();
-                cb(err, rows);
-            })
-        }
-        
+    insert_user : async (user_email, user_pw, user_nickname, salt) => {
+        let queryString = `insert into users(user_email, user_pw, user_nickname, salt, point) 
+        value ("${user_email}" , "${user_pw}" , "${user_nickname}", "${salt}", 0)`; 
+        return execute(queryString);
+    },
+
+    get_user_by_email : async (user_email) => { 
+        let queryString = `select * from users where user_email = "${user_email}"`;
+        result = await execute(queryString);
+        return result[0][0];
+    },
+    
+    get_user_by_nickname : async (user_nickname) => {
+        let queryString = `select * from users where user_nickname = "${user_nickname}"`;
+        result = await execute(queryString);
+        return result[0][0];
+    },
+
+    get_user_by_refreshToken : async (refreshToken) => {
+        let queryString = `select * from users where refreshToken="${refreshToken}"`;
+        result = await execute(queryString);
+        return result[0][0];
+    },
+
+    update_user_pw : (user_id, user_pw, salt) => {
+        let queryString = `update users set user_pw = "${user_pw}", salt = "${salt}" where id = "${user_id}"`;
+        return execute(queryString);
+    },
+
+    update_user_point : (user_id, point) => { // 유저에게 포인트 주는거 
+        let queryString = `update users set point = ${point} where id = "${user_id}"`;
+        return execute(queryString);
+    },
+
+    update_refreshToken : (user_email, refreshToken) => {
+        let queryString = `update users set refreshToken = "${refreshToken}" where user_email = "${user_email}"`;
+        return execute(queryString);
+    },
+    
+    update_user_delete_cnt : (user_email ,  del_cnt)  => { // delete 용 카운트 업데이트 
+        let queryString = `update users set del_cnt = ${del_cnt} where user_email = "${user_email}"`;
+        return execute(queryString);
+    },
+
+    update_user_add_cnt : (user_email ,  add_cnt)  => { // add 용 카운트 업데이트 
+        let queryString = `update users set add_cnt = ${add_cnt} where user_email = "${user_email}"`;
+        return execute(queryString);
+    },
+
+    update_user_review_cnt : (user_email ,  review_cnt)  => { // review 용 카운트 업데이트 
+        let queryString = `update users set review_cnt = ${review_cnt} where user_email = "${user_email}"`;
+        return execute(queryString);
+    },
+    
+    delete_user : (user_email) => { // 회원 삭제 
+        let queryString = `delete from users where user_email = "${user_email}"` ;
+        return execute(queryString);
     }
 }
-
-
-
-
-// db 정보 user 
-// user 기능을 먼저 생각해보자
-// user의 point 불러오기 
-// user의 id 불러오기 
-// pw 조회 -> 비밀번호 찾기 
-// id , pw , point 
-// phone_number 
