@@ -31,7 +31,7 @@ module.exports = {
         let queryString = `select users.* from users 
 		inner join trash_can
 		on trash_can.author = users.id 
-		where trash_can.id = "${trash_id}"`;
+		where trash_can.id = ${trash_id}`;
         result = await execute(queryString);
 		return result[0][0];
     },
@@ -42,7 +42,7 @@ module.exports = {
 		insert into trash_can 
 		(address , kind , full_status , latitude , longitude , del_point , trash_name , author , detail) 
 		value ("${address}" , ${kind}, ${full_status}, ${latitude}, ${longitude}, 0 , 
-		"${trash_name}" , "${author}" , "${detail}" )`; // 0 은 삭제요청 횟수 
+		"${trash_name}" , ${author} , "${detail}" )`; // 0 은 삭제요청 횟수 
 		
 		return execute(queryString);
 	},
@@ -53,7 +53,7 @@ module.exports = {
 	},
 
 	update_trash_can_deletepoint : (id , delete_point) => {
-		let queryString = `update trash_can set status = ${delete_point} where id = ${id} `;
+		let queryString = `update trash_can set delete_point = ${delete_point} where id = ${id} `;
 		return execute(queryString);
 	},
 	
