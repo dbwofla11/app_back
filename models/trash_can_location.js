@@ -12,13 +12,13 @@ module.exports = {
 	get_location_all : async () => { // 처음단계에서 다 로딩하기 필요여부 = ㅇ
 		let queryString = `select * from trash_can`;
 		result = await execute(queryString);
-		return result
+		return result[0];
 	},
 
 	get_trash_can_delete_point : async (id) => { // delete_point 가져와서 업데이트 할 때 씀 
-		let queryString = `select \`delete_point\` from trash_can where id = ${id}`;
+		let queryString = `select delete_point from trash_can where id = ${id}`;
 		result = await execute(queryString);
-		return result[0][0]
+		return result[0][0].delete_point;
 	}, 
 
 	get_trash_can_author : async (id) => { // 쓰레기통 id로 작성자 불러오기 
@@ -40,7 +40,9 @@ module.exports = {
 	insert_new_location : (address, latitude, longitude, kind, full_status, trash_name , author , detail) => { //add 기능은 이미 구현 됨 
 		let queryString = `
 		insert into trash_can 
-		value (null, "${address}" , ${kind}, ${full_status}, ${latitude}, ${longitude}, 0 , "${trash_name}" , "${author}" , "${detail}" )`; // 0 은 삭제요청 횟수 
+		(address , kind , full_status , latitude , longitude , del_point , trash_name , author , detail) 
+		value ("${address}" , ${kind}, ${full_status}, ${latitude}, ${longitude}, 0 , 
+		"${trash_name}" , "${author}" , "${detail}" )`; // 0 은 삭제요청 횟수 
 		
 		return execute(queryString);
 	},
@@ -60,9 +62,11 @@ module.exports = {
 		return execute(queryString); // service 에서 delete 할때 중간에 넣기 
 	},
 	/**x y 으로 쓰레기통 가져오기 x1 왼쪽 x2 오른쪽 , y1 위 y2 아래**/
-	get_trash_by_xy : (x1 , x2 , y1 , y2) => {
-		let queryString = `select * from trash_can if(${x1} < longitude < ${x2} , ${y1} < latitude < ${y2})`;
-		return execute(queryString);
+	get_trash_by_xy : async (x1 , x2 , y1 , y2) => {
+		let queryString = `select * from trash_can 
+		where((${x1} < longitude and longitude < ${x2}) and (${y1} < latitude and latitude < ${y2}) )`;
+		result = await execute(queryString);
+		return result[0]; // 여러개를 받을 때 하나만 해줌 
 	},
 	
 }
