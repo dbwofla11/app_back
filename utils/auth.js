@@ -3,13 +3,12 @@ const Users = require('../models/users');
 
 module.exports = {
     check_tokens : async (req, res, next) => {
-        const user = Users.get_user_by_refreshToken(req.cookies.refreshToken);
+        const user = await Users.get_user_by_refreshToken(req.cookies.refreshToken);
 
         if (req.cookies === undefined)
             return res.status(401).json({ message : '사용권한이 없습니다.' });
 
         // db에 있는 refreshToken과 cookie에 있는 refreshToken을 비교
-        await user;
         if (!user)
             return res.status(401).json({ message : "사용권한이 없습니다."});
 
