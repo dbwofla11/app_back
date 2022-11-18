@@ -40,7 +40,7 @@ module.exports = {
 	insert_new_location : (address, latitude, longitude, kind, full_status, trash_name , author , detail) => { //add 기능은 이미 구현 됨 
 		let queryString = `
 		insert into trash_can 
-		(address , kind , full_status , latitude , longitude , del_point , trash_name , author , detail) 
+		(address , kind , full_status , latitude , longitude , delete_point , trash_name , author , detail) 
 		value ("${address}" , ${kind}, ${full_status}, ${latitude}, ${longitude}, 0 , 
 		"${trash_name}" , ${author} , "${detail}" )`; // 0 은 삭제요청 횟수 
 		
