@@ -1,15 +1,12 @@
-const db = require('../config/db/db');
 const { execute } = require('../utils/dbQuery');
 
 // DB에 쿼리 보내기 
 module.exports = {
-    
-    insert_user : async (user_email, user_pw, user_nickname, salt) => { // 회원가입 
+    insert_user : async (user_email, user_pw, user_nickname, salt) => {
         let queryString = `insert into users(user_email, user_pw, user_nickname, salt, point) 
         value ("${user_email}" , "${user_pw}" , "${user_nickname}", "${salt}", 0)`; 
         return execute(queryString);
     },
-
 
     get_user_by_email : async (user_email) => { 
         let queryString = `select * from users where user_email = "${user_email}"`;
@@ -17,6 +14,12 @@ module.exports = {
         return result[0][0];
     },
     
+    get_user_by_nickname : async (user_nickname) => {
+        let queryString = `select * from users where user_nickname = "${user_nickname}"`;
+        result = await execute(queryString);
+        return result[0][0];
+    },
+
     get_user_by_refreshToken : async (refreshToken) => {
         let queryString = `select * from users where refreshToken="${refreshToken}"`;
         result = await execute(queryString);
@@ -57,5 +60,4 @@ module.exports = {
         let queryString = `delete from users where user_email = "${user_email}"` ;
         return execute(queryString);
     }
-   
 }
