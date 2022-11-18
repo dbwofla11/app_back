@@ -90,9 +90,9 @@ module.exports = {
 			email : user.user_email,
 			nickname : user.user_nickname,
 			point : user.point,
-			add_point : user.add_point,
-			del_point : user.del_point,
-			review_point : user.review_point
+			add_cnt : user.add_cnt,
+			del_cnt : user.del_cnt,
+			review_cnt : user.review_cnt
 		});
 	},
 
@@ -134,5 +134,11 @@ module.exports = {
 		const user_email = verify_jwt(req.cookies.accessToken, 'access').email;
 		await Users.delete_user(user_email);
 		return res.json({ message : '회원 탈퇴 성공' });
-	}
+	},
+	
+	logout : (req, res) => {
+		res.cookie('accessToken', '', { maxAge : 0 });
+		res.cookie('refreshToken', '', { maxAge : 0 });
+		res.json({message : '로그아웃하셨습니다.'});
+	},
 }
