@@ -46,15 +46,15 @@ module.exports ={
         const user = await Users.get_user_by_email(user_email); // author을 추가하기 위함 
         const detail = req.body.detail;        
         
-        if ( user.add_point > 2 ){
+        if ( user.add_cnt > 2 ){
             return res.json({result : true, message : "이미 하루 최대 추가 횟수를 체우셨습니다"});
-            
+
         } else{
             await Trash_can.insert_new_location( address , latitude  , longitude , kind , full_status , trash_name , user.id , detail ); // 
             
             await Users.update_user_point(user.id , user.point + 50);
 
-            await Users.update_user_add_cnt(user_email , user.add_point + 1);
+            await Users.update_user_add_cnt(user_email , user.add_cnt + 1);
 
             return res.json({result : true, message : "쓰레기통 추가가 완료되었습니다."});
         }
@@ -67,7 +67,7 @@ module.exports ={
         const user_email = verify_jwt(req.cookies.accessToken, 'access').email ;
         let user = await Users.get_user_by_email(user_email);
 
-        if ( user.review_point > 9 ){
+        if ( user.review_cnt > 9 ){
             return res.json({result : true, message : "이미 하루 최대 리뷰 횟수를 체우셨습니다."});
 
         } else {
@@ -75,7 +75,7 @@ module.exports ={
 
             await Users.update_user_point(user.id , user.point + 10);
 
-            await Users.update_user_review_cnt(user_email , user.review_point + 1);
+            await Users.update_user_review_cnt(user_email , user.review_cnt + 1);
 
             return res.json({result : true, message : "리뷰가 업데이트 되었습니다"});
         }
@@ -89,7 +89,7 @@ module.exports ={
         
         let [user , author] = await Promise.all([Users.get_user_by_email(user_email) , Trash_can.get_author_point(trash_id)])
 
-        if( user.del_point >= 3 ){
+        if( user.del_cnt >= 3 ){
 
             return res.json({result : true , message : "이미 하루 최대 삭제요청 횟수를 체우셨습니다."})
         }
@@ -103,14 +103,14 @@ module.exports ={
 
                 await Users.update_user_point(author.id , author.point - 50);
 
-                await Users.update_user_delete_cnt(user_email , user.del_point + 1);
+                await Users.update_user_delete_cnt(user_email , user.del_cnt + 1);
 
                 return res.json({result : true , message : "쓰레기통이 정상적으로 삭제되었습니다."});
             }
             else{
                 await Trash_can.update_trash_can_deletepoint(trash_id , trash_delete_point);
 
-                await Users.update_user_delete_cnt(user_email , user.del_point + 1);
+                await Users.update_user_delete_cnt(user_email , user.del_cnt + 1);
 
                 return res.json({result : true , message : "삭제요청이 완료되었습니다."});
             }
