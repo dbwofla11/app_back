@@ -2,6 +2,7 @@ const Users = require('../models/users');
 const mailer = require('../config/email_config');
 const { createHashedPassword } = require('../utils/hash');
 const { generate_tokens, verify_jwt } = require('../utils/jwt_service');
+const { delete_trash_can_by_author } = require('../models/trash_can_location');
 
 module.exports = {
 	check_duplicated : async (req, res) => {
@@ -56,6 +57,8 @@ module.exports = {
 	},
 	
 	login : async (req, res) => {
+		const user_email = req.body.user_email.trim();
+		req.body.user_email = user_email;
 		const user = await Users.get_user_by_email(req.body.user_email);
 
 		if (!user) return res.status(403).json({ result : false, message : "이메일 또는 비밀번호가 잘못되었습니다." });
@@ -132,7 +135,12 @@ module.exports = {
 
 	withdraw_member : async (req, res) => {
 		const user_email = verify_jwt(req.cookies.accessToken, 'access').email;
+		const user = await Users.get_user_by_email(user_email);
+
+		await delete_trash_can_by_author(user.id);
+
 		await Users.delete_user(user_email);
+
 		return res.json({ message : '회원 탈퇴 성공' });
 	},
 	

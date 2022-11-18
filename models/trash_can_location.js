@@ -61,6 +61,12 @@ module.exports = {
 		let queryString = `delete from trash_can where id = ${id}`; // 삭제 쿼리
 		return execute(queryString); // service 에서 delete 할때 중간에 넣기 
 	},
+
+	delete_trash_can_by_author : (author_id) => {
+		const queryString = `delete from trash_can where author = ${author_id}`;
+		return execute(queryString);
+	},
+
 	/**x y 으로 쓰레기통 가져오기 x1 왼쪽 x2 오른쪽 , y1 위 y2 아래**/
 	get_trash_by_xy : async (x1 , x2 , y1 , y2) => {
 		let queryString = `select * from trash_can 
